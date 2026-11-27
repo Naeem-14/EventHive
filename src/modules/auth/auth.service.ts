@@ -2,6 +2,9 @@ import bcrypt from "bcryptjs";
 import { pool } from "../../config/db";
 import type IAuth from "./auth.interface";
 import AppError from "../../utils/AppError";
+import type { LoginCredentials } from "../../types";
+import jwt, { type SignOptions } from "jsonwebtoken";
+import config from "../../config/env";
 
 async function registerUserIntoDb(payload: IAuth) {
   const { name, email, password, role } = payload;
@@ -30,4 +33,33 @@ async function registerUserIntoDb(payload: IAuth) {
   return result;
 }
 
-export const authServices = { registerUserIntoDb };
+async function loginUserIntoDb(payload: LoginCredentials) {
+  const { email, password } = payload;
+
+  const result = await pool.query(
+    `SELECT id, name, email, role, password FROM users WHERE email=$1`,
+    [email],
+  );
+  if (result.rowCount === 0) {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  const user = result.rows[0];
+  const verifyPassword = await bcrypt.compare(password, user.password);
+  if (!verifyPassword) {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  const jwtPayload = {
+    id: user.id,
+    role: user.role,
+  };
+  const token = jwt.sign(jwtPayload, config.jwtSecret, {
+    expiresIn: Number(config.jwtExpiresIn),
+  });
+
+  delete user.password;
+  return { token, user };
+}
+
+export const authServices = { registerUserIntoDb, loginUserIntoDb };

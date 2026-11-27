@@ -17,4 +17,19 @@ async function registerUser(req: Request, res: Response) {
   }
 }
 
-export const authControllers = { registerUser };
+async function loginUser(req: Request, res: Response) {
+  try {
+    const result = await authServices.loginUserIntoDb(req.body);
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Login successful",
+      data: result,
+    });
+  } catch (error) {
+    sendErrorResponse(res, error);
+  }
+}
+
+export const authControllers = { registerUser, loginUser };
