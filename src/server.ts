@@ -1,6 +1,6 @@
 import app from "./app";
-import config from "./config";
-import { initDb } from "./db";
+import config from "./config/env";
+import { initDb } from "./config/db";
 
 function main() {
   initDb();

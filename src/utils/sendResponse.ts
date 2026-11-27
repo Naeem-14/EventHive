@@ -4,7 +4,7 @@ interface IResponse<T> {
   statusCode: number;
   success: boolean;
   message: string;
-  data: T;
+  data?: T;
 }
 
 export function sendResponse<T>(res: Response, data: IResponse<T>) {
@@ -19,6 +19,6 @@ export function sendErrorResponse(res: Response, error: any) {
   res.status(500).json({
     success: false,
     message: error?.message || "Internal Server Error",
-    error: error,
+    errors: error,
   });
 }

@@ -1,5 +1,5 @@
 import { Pool } from "pg";
-import config from "../config";
+import config from "./env";
 import AppError from "../utils/AppError";
 
 export const pool = new Pool({
