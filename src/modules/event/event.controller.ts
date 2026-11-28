@@ -71,9 +71,30 @@ async function updateEvent(req: Request, res: Response) {
   }
 }
 
+async function deleteEvent(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const deletedBy = req.user!.id;
+    const result = await eventServices.deleteEventFromDb(
+      id as string,
+      deletedBy,
+    );
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Event deleted successfully",
+      data: result.oid,
+    });
+  } catch (error) {
+    sendErrorResponse(res, error);
+  }
+}
+
 export const eventControllers = {
   addEvent,
   seeEvents,
   getSingleEvent,
   updateEvent,
+  deleteEvent,
 };

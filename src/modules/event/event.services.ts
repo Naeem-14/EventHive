@@ -133,9 +133,37 @@ async function updateEventFromDb(
   return result;
 }
 
+async function deleteEventFromDb(id: string, deletedBy: string) {
+  const event = await pool.query(
+    `
+    SELECT * FROM events WHERE id=$1
+  `,
+    [id],
+  );
+
+  if (event.rowCount === 0) {
+    throw new AppError("Event not found", 404);
+  } else if (event.rows[0].organizer_id !== deletedBy) {
+    throw new AppError("You are not the owner of this event!", 403);
+  } else if (event.rows[0].total_seats !== event.rows[0].available_seats) {
+    throw new AppError("Event has confirmed bookings!", 401);
+  }
+
+  const result = await pool.query(
+    `
+    DELETE FROM events
+    WHERE id=$1
+  `,
+    [id],
+  );
+
+  return result;
+}
+
 export const eventServices = {
   addEventToDb,
   seeEventsFromDb,
   getSingleEventFromDb,
   updateEventFromDb,
+  deleteEventFromDb,
 };
