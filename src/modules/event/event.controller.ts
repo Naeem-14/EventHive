@@ -50,8 +50,30 @@ async function getSingleEvent(req: Request, res: Response) {
   }
 }
 
+async function updateEvent(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const updaterId = req.user!.id;
+    const result = await eventServices.updateEventFromDb(
+      id as string,
+      updaterId,
+      req.body,
+    );
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Event updated successfully",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    sendErrorResponse(res, error);
+  }
+}
+
 export const eventControllers = {
   addEvent,
   seeEvents,
   getSingleEvent,
+  updateEvent,
 };
