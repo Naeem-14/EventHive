@@ -47,4 +47,31 @@ async function addBookingToDb(attendeeId: string, payload: IBooking) {
   return result;
 }
 
-export const bookingServices = { addBookingToDb };
+async function getBookingsFromDb(userId: string) {
+  const result = await pool.query(
+    `
+    SELECT
+      b.id,
+      json_build_object(
+        'id', e.id,
+        'title', e.title,
+        'date', e.date,
+        'location', e.location
+      ) AS event,
+      b.tickets_booked,
+      b.total_price,
+      b.status,
+      b.created_at
+    FROM bookings AS b
+    INNER JOIN events AS e
+      ON b.event_id = e.id
+    WHERE b.attendee_id = $1
+    ORDER BY b.created_at DESC
+  `,
+    [userId],
+  );
+
+  return result;
+}
+
+export const bookingServices = { addBookingToDb, getBookingsFromDb };

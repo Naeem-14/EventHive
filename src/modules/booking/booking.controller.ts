@@ -17,4 +17,19 @@ async function addBooking(req: Request, res: Response) {
   }
 }
 
-export const bookingControllers = { addBooking };
+async function getBookings(req: Request, res: Response) {
+  try {
+    const result = await bookingServices.getBookingsFromDb(req.user!.id);
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Bookings retrieved successfully",
+      data: result.rows,
+    });
+  } catch (error) {
+    sendErrorResponse(res, error);
+  }
+}
+
+export const bookingControllers = { addBooking, getBookings };

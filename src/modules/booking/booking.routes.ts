@@ -10,5 +10,10 @@ router.post(
   auth(USER_ROLES.attendee, USER_ROLES.organizer),
   bookingControllers.addBooking,
 );
+router.get(
+  "/",
+  auth(USER_ROLES.attendee, USER_ROLES.organizer),
+  bookingControllers.getBookings,
+);
 
 export const bookingRoutes = router;
