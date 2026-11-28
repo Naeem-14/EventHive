@@ -4,6 +4,7 @@ import { authRoutes } from "./modules/auth/auth.routes";
 import { eventRoutes } from "./modules/event/event.routes";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { bookingRoutes } from "./modules/booking/booking.routes";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/events", eventRoutes);
+app.use("/api/v1/bookings", bookingRoutes);
 
 app.use(globalErrorHandler);
 
