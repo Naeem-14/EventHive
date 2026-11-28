@@ -1,4 +1,5 @@
 import { pool } from "../../config/db";
+import AppError from "../../utils/AppError";
 import type IEvent from "./event.interface";
 
 async function addEventToDb(payload: IEvent, organizerId: string) {
@@ -46,4 +47,38 @@ async function seeEventsFromDb(searchQuery: string) {
   return filteredData;
 }
 
-export const eventServices = { addEventToDb, seeEventsFromDb };
+async function getSingleEventFromDb(id: string) {
+  const event = await pool.query(
+    `
+    SELECT * FROM events WHERE id=$1
+  `,
+    [id],
+  );
+
+  if (event.rowCount === 0) {
+    throw new AppError("Event not found!", 404);
+  }
+
+  const organizer = await pool.query(
+    `
+    SELECT id, name, email FROM users WHERE id=$1
+  `,
+    [event.rows[0].organizer_id],
+  );
+
+  const { created_at, updated_at, ...eventDetails } = event.rows[0];
+
+  const result = {
+    ...eventDetails,
+    organizer: { ...organizer.rows[0] },
+    created_at,
+    updated_at,
+  };
+  return result;
+}
+
+export const eventServices = {
+  addEventToDb,
+  seeEventsFromDb,
+  getSingleEventFromDb,
+};

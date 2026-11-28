@@ -34,7 +34,24 @@ async function seeEvents(req: Request, res: Response) {
   }
 }
 
+async function getSingleEvent(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const result = await eventServices.getSingleEventFromDb(id as string);
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Event retrieved successfully",
+      data: result,
+    });
+  } catch (error) {
+    sendErrorResponse(res, error);
+  }
+}
+
 export const eventControllers = {
   addEvent,
   seeEvents,
+  getSingleEvent,
 };
