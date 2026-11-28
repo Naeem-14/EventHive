@@ -15,5 +15,10 @@ router.get(
   auth(USER_ROLES.attendee, USER_ROLES.organizer),
   bookingControllers.getBookings,
 );
+router.patch(
+  "/:id/cancel",
+  auth(USER_ROLES.attendee, USER_ROLES.organizer),
+  bookingControllers.cancelBooking,
+);
 
 export const bookingRoutes = router;

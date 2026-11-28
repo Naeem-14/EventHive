@@ -74,4 +74,49 @@ async function getBookingsFromDb(userId: string) {
   return result;
 }
 
-export const bookingServices = { addBookingToDb, getBookingsFromDb };
+async function cancelBookingFromDb(id: string, userId: string) {
+  const booking = await pool.query(
+    `
+    SELECT * FROM bookings WHERE id=$1
+  `,
+    [id],
+  );
+  const bookedEvent = booking.rows[0];
+
+  if (booking.rowCount === 0) {
+    throw new AppError("Booking not found", 404);
+  } else if (userId !== bookedEvent.attendee_id) {
+    throw new AppError("", 403);
+  } else if (bookedEvent.status === "cancelled") {
+    throw new AppError("Booking already cancelled", 409);
+  }
+
+  const event = await pool.query(
+    `
+    SELECT * FROM events WHERE id=$1
+  `,
+    [bookedEvent.event_id],
+  );
+
+  if (event.rows[0].date < new Date()) {
+    throw new AppError("The event has already passed", 400);
+  }
+
+  const result = await pool.query(
+    `
+    UPDATE bookings
+    SET status = 'cancelled'
+    WHERE id=$1
+    RETURNING *
+  `,
+    [bookedEvent.id],
+  );
+
+  return result;
+}
+
+export const bookingServices = {
+  addBookingToDb,
+  getBookingsFromDb,
+  cancelBookingFromDb,
+};

@@ -32,4 +32,23 @@ async function getBookings(req: Request, res: Response) {
   }
 }
 
-export const bookingControllers = { addBooking, getBookings };
+async function cancelBooking(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const result = await bookingServices.cancelBookingFromDb(
+      id as string,
+      req.user!.id,
+    );
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Booking cancelled successfully",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    sendErrorResponse(res, error);
+  }
+}
+
+export const bookingControllers = { addBooking, getBookings, cancelBooking };
